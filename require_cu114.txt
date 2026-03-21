@@ -1,0 +1,25 @@
+# pip install xcodec2 --no-deps
+# pip install -r require_cu114.txt
+
+pandas
+vector_quantize_pytorch
+descript-audio-codec
+dacite
+boto3==1.35.36
+s3fs
+tensorboard
+json_repair
+pydantic
+loguru
+pydub
+ruff==0.12.2
+omegaconf
+click
+langid
+jieba
+transformers==4.47.0
+openai-whisper
+jiwer
+soundfile
+librosa
+peft

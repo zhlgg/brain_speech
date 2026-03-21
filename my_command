@@ -1,0 +1,193 @@
+wget https://repo.anaconda.com/archive/Anaconda3-2024.02-1-Linux-x86_64.sh
+conda create -n higgs python=3.12 --yes
+pip install --force pip==24.0
+export PYTHONPATH=/apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/fairseq
+conda create --name vllm --clone base
+conda remove -n test --all
+pip install -r requirements.txt
+conda clean --all --yes
+alias ca='conda activate'
+alias ll='ls -lt'
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu124
+
+pkill -f ghost
+nohup bash train.sh >nohup.log &
+bash ~/run_ghost.sh
+
+##挂载不上解决
+taiji_client umount /apdcephfs_cq10
+taiji_client umount /apdcephfs_cq11
+taiji_client umount /apdcephfs_cq8
+taiji_client umount /apdcephfs_cq7_1297902
+##初始化
+wget -O /etc/yum.repos.d/ceph_el7_1.repo http://gaia.repo.oa.com/ceph_el7.repo
+yum install -y ceph-fuse
+wget http://jizhi.oa.com/taiji_client_golang/taiji_client -O /usr/bin/taiji_client && chmod +x /usr/bin/taiji_client 
+# taiji_client update
+
+token 1HHfzzA4VrLc3-1AwlyTlA
+
+taiji_client mount -l cq -tk kBqK-lgPTUA88ojxjPv5Zw
+taiji_client mount -l cq -tk 1HHfzzA4VrLc3-1AwlyTlA
+taiji_client mount -tk 1HHfzzA4VrLc3-1AwlyTlA -bf AILab_Instruct_TTS
+taiji_client mount -tk 1HHfzzA4VrLc3-1AwlyTlA -bf TEG_AILAB_TRC_CGC_chongqing
+
+
+##复启动
+taiji_client start -tf 16_H20_F5_infer_67_1
+##卡运行情况
+taiji_client brl AILab_Instruct_TTS
+taiji_client brl TaiJi_HYAide_AILab__TTS_SH_A100H
+taiji_client brl TEG_AILAB_TRC_CGC_INTERN_CQ
+taiji_client brl AILab_Seattle_Speech
+taiji_client brl AILab_Audio_Edit
+
+##查看
+taiji_client il 8_H20_vllm_infer_67_1
+taiji_client start -scfg /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/salmonn_finetune/up_load/h20/config.json
+
+##A100
+##V100
+
+taiji_client exec train_debug_V100_SW 8b1d8143958449410195884b35d40735 bash    
+taiji_client exec train_16debugwhl_V100 8b1d807594f3d2170194f4248db20118 bash
+taiji_client exec 8V100_f5_durpred_mask_seattle 8b1d8143958449410195845d16450035 bash
+taiji_client exec 8_H20_vllm_infer_67_0 8b1d89b1985a79020198a1a4fec157ed bash
+##终止
+taiji_client stop 16_H20_F5_infer_67_2
+cat /etc/ceph/ceph.client.user_ozoratliu.keyring
+
+
+##ghost
+# ps -ef | grep ghost | awk '{print $2}' | xargs kill -9
+pkill -f ghost
+ps aux | grep ghost
+
+bash ~/run_ghost.sh
+vim ~/.bashrc
+##tmux
+tmux attach -t 0
+tmux kill-session -t 1
+tmux new -s 0
+tmux ls
+##hfd
+hfd Qwen/Qwen2.5-14B-Instruct
+hfd microsoft/wavlm-base-plus-sd
+hfd AbstractTTS/IEMOCAP --dataset
+hfd k2-fsa/OpenDialog --dataset
+# cp ../results/select_results/hanjiao_detect_process_3000/3GTLHmApd_c_000050.wav ./
+# cp ../results/select_results/huxi_detect_process_3000/07034122.flac_1.wav ./
+# cp ../results/select_results/xiaosheng_detect_process_3000/qFci-Pbm3sE_000250.wav ./
+hfd tsinghua-ee/SALMONN --include *pth
+
+mkdir /apdcephfs_cq10/ /apdcephfs_cq11/ /apdcephfs_cq7/ /apdcephfs_cq8/
+ln -s /apdcephfs/default120849/apdcephfs_cq10/* /apdcephfs_cq10/
+# ln -s /apdcephfs/default120849/apdcephfs_cq8/share_1297902/* /apdcephfs_cq8/
+# ln -s /apdcephfs/default120849/apdcephfs_cq7/share_1297902/* /apdcephfs_cq7/
+# ln -s /apdcephfs/default120849/apdcephfs_cq11/share_1297902/* /apdcephfs_cq11/
+
+ln -s /apdcephfs/default120915/* /apdcephfs/private_nenali/
+
+nohup rsync -avzun --exclude='ckpts' --exclude='outputs' /apdcephfs_cq8/private_nenali/chukewang/F5-TTS/ /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/F5-TTS/ &
+nohup rsync -avzu /apdcephfs_cq8/private_nenali/chukewang/F5-TTS/test_data /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/F5-TTS/test_data &
+nohup rsync -avzu /apdcephfs_cq10/share_1297902/data/speech_data/single_data/audio_generation/intern/yujie/SALMONN-main/ckpt/ /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/salmonn_finetune/ckpt &
+
+nohup rsync -avzu --exclude='pretrained_model' --exclude='output' --exclude='data' --exclude='TimeRefine' salmonn_finetune/ salmonn_finetune_v2/ &
+
+# 打开配置文件
+vi ~/.bashrc
+# 添加下述变量
+export HF_HOME="/apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/librispeech"
+export HF_ENDPOINT=https://hf-mirror.com
+# 使配置文件生效
+source ~/.bashrc
+
+cd /apdcephfs/private_nenali/wanghualei/code/parrot
+cd /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code
+
+ps -elf|grep
+nvidia-smi --query-compute-apps=pid,used_memory --format=csv
+netstat -anp| grep 29500
+rsync -avzu  /data/anaconda3/ /root/anaconda3/
+
+openxlab dataset download --dataset-repo OpenDataLab/MuST-C --source-path /raw --target-path ./MuST-C
+openxlab dataset download --dataset-repo OpenDataLab/MuST-C --source-path /README.md --target-path ./MuST-C
+
+find ./AudioSet_SL_flac -type f -name "*.flac" > AudioSet_SL_flac.txt
+
+pipreqs . --encoding=utf8 --force
+
+/apdcephfs_cq10/share_1297902/data/speech_data/single_data/audio_generation/intern/yujie/SALMONN-main
+
+ls -l /usr/local | grep cuda
+kill $(netstat -anp | grep python | awk '{print $7}' | cut -d'/' -f1)
+
+
+find ./AudioSet_SL_flac -type f -name "*.flac" > AudioSet_SL_flac.txt
+hfd bosonai/EmergentTTS-Eval --dataset --hf_username wanghappy --hf_token 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
+pipreqs . --encoding=utf8 --force
+kill $(netstat -anp | grep python | awk '{print $7}' | cut -d'/' -f1)
+netstat
+conda activate /apdcephfs_cq10/share_1297902/cq2/speech_user/andylqhe/anaconda3/envs/tts
+#test-audios
+gdown -c 'https://drive.google.com/uc?export=download&id=1fERNIyTa0HWry6iIG1X-1ACPlUlhlRWA&confirm=yes'
+gdown -c 'https://drive.google.com/uc?export=download&id=1XqkRupC723zAeyDn4dYniqNv4uO-8rEg&confirm=yes'
+##audiotime
+gdown -c 'https://drive.google.com/uc?export=download&id=1Xdpc7oY2oK4edUJCUW-vknQaNTBOpE1T&confirm=yes'
+gdown -c 'https://drive.google.com/uc?export=download&id=1F26ta621Y8dUe19XVCxtSpl_2meDUtbS&confirm=yes'
+gdown -c 'https://drive.google.com/uc?export=download&id=1ipLnPga_pXXRmJ39McBlrf_i2WHnhWlH&confirm=yes'
+
+taiji_client brl TaiJi_TB_SHAREINF_bj_H20
+taiji_client brl TaiJi_HYAide_AILab_AG_SH_H20
+taiji_client brl TaiJi_HYAide_TTS_GY_H20 
+taiji_client brl TaiJi_HYAide_SFTB_SH_H20
+taiji_client brl TaiJi_HYAide_model_GY_H20
+taiji_client brl TaiJi_HYAide_SHARE_INF_GY_H20
+taiji_client brl TaiJi_HYAide_hyinftest_GY
+taiji_client brl TaiJi_HYAide_AILab_MM_TTS_GZ_H20
+taiji_client brl TaiJi_HYAide_Exp2_GY_L40S
+
+taiji_client brl TaiJi_HYAide_SHAREINF_QY_A100L
+taiji_client brl TaiJi_HYAide_AILab_IMM_SH_A100H
+taiji_client brl AILab_Seattle_Speech
+taiji_client brl AILab_MT
+taiji_client brl AILAB_ASR_QY
+taiji_client brl AILab_ASSP_PaaS AILab_Instruct_TTS
+
+# conda config --set auto_activate_base true
+export http_proxy="http://9.21.0.122:11113"
+export https_proxy="http://9.21.0.122:11113"
+export http_proxy=http://star-proxy.oa.com:3128 
+export https_proxy=http://star-proxy.oa.com:3128
+pip install torch==2.6.0+cu118 torchaudio==2.6.0+cu118 --index-url https://download.pytorch.org/whl/cu118
+pip install torch==2.6.0+cu124 torchvision==0.21.0+cu124 torchaudio==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124
+# zenodo_get https://zenodo.org/records/15379789
+pip config set global.index-url https://pypi.org/simple
+torchvision==0.15.2+cu118 
+docker build --network host -t mirrors.tencent.com/h20/qwen .
+docker push qwen:latest
+docker run --gpus all -itd --name h20 --network host -v ~/:/mnt/workspace -w /mnt/workspace --shm-size 2g mirrors.tencent.com/colinygu/py3.10_cu12.4_torch2.4:latest /bin/bash
+docker commit h20 mirrors.tencent.com/h20/qwen:latest
+docker push mirrors.tencent.com/h20/qwen:latest
+taiji_client start -scfg /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/base/salmonn/up_load/new_h20/train_8H20_sleep_omnispeech_guyunew.json
+taiji_client start -tf SH_8H20_F5_omni_T 8H20_F5_omni_T #16_H20_F5_infer_67_2 8_H20_vllm_infer_sftb 8H20_F5_omni_T
+taiji_client stop 8_H20_vllm_infer_67_0
+
+pip install nvidia-cublas-cu12==12.3.4.1
+pip freeze | grep nvidia-cublas-cu12
+
+pip install vllm==0.8.5 
+# pip3 install xformers==0.0.29.post2
+python -c "import torch; print(torch.cuda.get_device_capability())"
+export TORCH_CUDA_ARCH_LIST="9.0"
+pip install -v --disable-pip-version-check -e .
+cd /apdcephfs_cq10/share_1297902/data/speech_data/qa_data/diag_proc/
+# tensorboard --logdir=logs --port 6011
+pip install torch==2.6.0 torchaudio==2.6.0
+UNZIP_DISABLE_ZIPBOMB_DETECTION=TRUE unzip -o HD-Track2.zip 
+conda uninstall pytorch torchvision torchaudio
+conda install -c conda-forge "gxx_linux-64==11.*" "libstdcxx-ng>=12.2"
+修复办法
+pip install torch==2.6.0+cu124 torchvision==0.21.0+cu124 torchaudio==2.6.0+cu124 --index-url https://download.pytorch.org/whl/cu124
+conda install ffmpeg -c pytorch -c conda-forge --force-reinstall
+python /apdcephfs_cq10/share_1297902/user/nenali/project/wanghualei/code/higgs/train-higgs-audio/torchaudio_fix.py
